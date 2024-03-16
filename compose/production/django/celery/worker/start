@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+#exec celery -A namozvaqtlari.celery_app worker -l INFO --time-limit=3600
+exec celery -A namozvaqtlari.celery_app worker -l INFO -Q my_sequential_queue -c 1 --time-limit=14400

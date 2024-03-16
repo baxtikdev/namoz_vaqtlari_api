@@ -1,0 +1,29 @@
+<!-- yourappname/templates/yourappname/custom_view_base.html -->
+{% extends 'admin/base.html' %}
+
+{% block content %}
+    <div class="custom-view container container-fluid">
+        <!-- Add your custom content here -->
+        {% block custom_content %}{% endblock %}
+    </div>
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        .custom-view {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px; /* Adjust the gap as needed */
+            height: 100%;
+            align-content: flex-start;
+        }
+
+        .chart {
+            flex: 1 1 calc(50% - 20px); /* Adjust the width based on your layout preferences */
+            height: 400px; /* Adjust the height based on your layout preferences */
+        }
+    </style>
+{% endblock %}

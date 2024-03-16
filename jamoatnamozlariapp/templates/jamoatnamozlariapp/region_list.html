@@ -1,0 +1,78 @@
+<!-- yourappname/templates/yourappname/regions_list.html -->
+{% extends 'jamoatnamozlariapp/custom_view_base.html' %}
+
+{% block custom_content %}
+
+<div class="container mt-5">
+    <!-- Title Card for Umumiy statistika -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="card-title">Umumiy statistika</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'region_statistic' %}" class="card card-link text-wrap">
+                <div class="card-body">
+                    <h2 class="card-title">Barcha viloyatlar</h2>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'district_statistic' %}" class="card card-link text-wrap">
+                <div class="card-body">
+                    <h2 class="card-title">Barcha tumanlar</h2>
+                </div>
+            </a>
+        </div>
+
+        <!-- Additional Card for Barcha Masjidlar -->
+        <div class="col-md-4 mb-4">
+            <a href="{% url 'masjid_statistic' %}" class="card card-link text-wrap">
+                <div class="card-body">
+                    <h2 class="card-title">Barcha masjidlar</h2>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Title Card for Viloyat/Shaxarlar roʻyxati -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h2 class="card-title">Hududlar boʻyicha statistika</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Display regions in a grid -->
+    <div class="row">
+        {% for region in regions %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'region_detail' region.pk %}" class="card card-link text-wrap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ region.name_uz }}</h5>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Add script to change page title dynamically -->
+<script>
+    // Change the page title using JavaScript
+    document.title = 'Statistika';
+
+    document.body.classList.add('sidebar-collapse');
+</script>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+<!-- yourappname/templates/yourappname/districts_in_region_statistics.html -->
+
+{% extends 'jamoatnamozlariapp/custom_view_base.html' %}
+
+{% block custom_content %}
+<div class="container mt-4">
+    <div class="header-block">
+        <h1 class="display-4 mb-0">{{ district_stats.0.region.name_uz }} tuman(shahar)lari statistikasi</h1>
+    </div>
+
+    <!-- Little header for the button group -->
+    <div class="container row">
+        <div class="sort-header">
+            <h5>Saralash:</h5>
+        </div>
+        <div class="btn-group" role="group" aria-label="Sort Order">
+            <button type="button" class="btn btn-info" onclick="window.location.href='?sort=asc'">Oʻsish</button>
+            <button type="button" class="btn btn-warning" onclick="window.location.href='?sort=desc'">Kamayish</button>
+        </div>
+        <div class="sort-header">
+            <h5>boʻyicha</h5>
+        </div>
+    </div>
+
+    <table class="table table-striped table-hover mt-3">
+        <thead>
+            <tr>
+                <th scope="col">Tuman</th>
+                <th scope="col">Obunachilar soni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for district in district_stats %}
+                <tr>
+                    <td>{{ district.name_uz }}</td>
+                    <td>{{ district.subscriber_count }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'region_detail' district_stats.0.region.pk %}" class="btn btn-primary mt-4">Orqaga qaytish</a>
+
+
+<script>
+    // Change the page title using JavaScript
+    document.title = '{{ district_stats.0.region.name_uz }} tumanlari statistikasi';
+    document.body.classList.add('sidebar-collapse');
+</script>
+
+<style>
+    .header-block {
+        background-color: #d1dae8;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        color: #000000;
+    }
+
+    .header-block h1 {
+        font-weight: bold;
+    }
+
+    .btn-group {
+        margin-left: 15px;
+        margin-right: 10px;
+    }
+</style>
+
+{% endblock %}

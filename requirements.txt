@@ -1,0 +1,8 @@
+django
+django-jazzmin
+django-ninja
+pytelegrambotapi
+django-kronos
+beautifulsoup4
+UzTransliterator
+django-rosetta

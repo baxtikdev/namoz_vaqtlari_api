@@ -1,0 +1,39 @@
+<!-- yourappname/templates/yourappname/region_statistics.html -->
+{% extends 'jamoatnamozlariapp/custom_view_base.html' %}
+
+{% block custom_content %}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <img src="https://avatars.mds.yandex.net/get-altay/9284964/2a0000018b1d1548b1131ffe3df8dd4b1db5/XXXL" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Masjidlar</h5>
+                    <p class="card-text">Barcha masjidlar statistikasini koʻrish</p>
+                    <a href="{% url 'masjid_statistic' %}" class="btn btn-primary">Koʻrish</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mb-4">
+            <div class="card">
+                <img src="https://www.advantour.com/img/uzbekistan/images/tashkent.jpg" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Xududlar</h5>
+                    <p class="card-text">Xududlar statistikasini koʻrish</p>
+                    <a href="{% url 'region_list' %}" class="btn btn-primary">Koʻrish</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Add script to change page title dynamically -->
+        <script>
+            // Change the page title using JavaScript
+            document.title = 'Statistika';
+
+            document.body.classList.add('sidebar-collapse');
+        </script>
+
+{% endblock %}

@@ -1,0 +1,61 @@
+version: '3'
+
+volumes:
+  production_postgres_data: { }
+  production_postgres_data_backups: { }
+#  production_traefik: { }
+  production_django_media: { }
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+
+    image: namozvaqtlari_production_django
+    volumes:
+      - /var/www/namozvaqtlari/media:/app/media
+      - /var/www/namozvaqtlari/static:/app/static
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - 8001:8001
+    env_file:
+      - ./.envs/.production/.django
+      - ./.envs/.production/.postgres
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: namozvaqtlari_production_postgres
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.production/.postgres
+
+  redis:
+    image: redis:6
+
+  celeryworker:
+    <<: *django
+    image: namozvaqtlari_production_celeryworker
+    container_name: namozvaqtlari_production_celeryworker
+    depends_on:
+      - redis
+      - postgres
+    ports: [ ]
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django
+    image: namozvaqtlari_production_celerybeat
+    container_name: namozvaqtlari_production_celerybeat
+    depends_on:
+      - redis
+      - postgres
+    ports: [ ]
+    command: /start-celerybeat

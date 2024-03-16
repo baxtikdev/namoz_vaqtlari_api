@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+python /app/manage.py collectstatic --noinput
+python /app/manage.py migrate
+
+#exec uvicorn namozvaqtlari.asgi:application --host 0.0.0.0 --reload --reload-include '*.html'
+gunicorn namozvaqtlari.wsgi:application --bind 0.0.0.0:8001 --reload

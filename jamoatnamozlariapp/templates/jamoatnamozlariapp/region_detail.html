@@ -1,0 +1,66 @@
+<!-- jamoatnamozlariapp/templates/jamoatnamozlariapp/region_detail.html -->
+{% extends 'jamoatnamozlariapp/custom_view_base.html' %}
+
+{% block custom_content %}
+
+<div class="container mt-5">
+    <div class="card text-center clickable-card" onclick="window.location='{% url 'districts_in_region_statistic' region.id %}'">
+        <div class="card-header">
+            <h4>{{ region.name_uz }}</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ region.name_uz }} statistikasi: </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Tumanlar soni:</strong> <span class="badge badge-primary">{{ region.district_set.count }}</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Masjidlar soni:</strong> <span class="badge badge-primary">{{ masjid_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card text-center clickable-card" onclick="window.location='{% url 'districts_in_region_statistic' region.id %}'">
+                <div class="card-body">
+                    <a href="{% url 'districts_in_region_statistic' region.id %}" class="card-title">Tumanlar boʻyicha</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card text-center clickable-card" onclick="window.location='{% url 'masjids_in_region_statistic' region.id %}'">
+                <div class="card-body">
+                    <a href="{% url 'masjids_in_region_statistic' region.id %}" class="card-title">Masjidlar boʻyicha</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="mt-4">{{ region.name_uz }} tumanlari</h3>
+    <div class="row">
+        {% for district in districts %}
+            <div class="col-md-4 mb-4">
+                <div class="card clickable-card" onclick="window.location='{% url 'masjids_in_district_statistic' district.id %}'">
+                    <div class="card-body text-center">
+                        <a href="{% url 'masjids_in_district_statistic' district.id %}" class="card-title">{{ district.name_uz }}</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'region_list' %}" class="btn btn-primary mt-4">Hududlarga qaytish</a>
+</div>
+
+<!-- Add script to change page title dynamically -->
+<script>
+    // Change the page title using JavaScript
+    document.title = '{{ region.name_uz }} statistikasi';
+
+    document.body.classList.add('sidebar-collapse');
+</script>
+
+{% endblock %}
