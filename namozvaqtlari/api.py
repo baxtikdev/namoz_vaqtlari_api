@@ -134,7 +134,7 @@ def masjid_info(request, masjid_pk, user_id):
     masjid = Masjid.objects.select_related('district', 'district__region').filter(pk=masjid_pk).first()
     today = datetime.datetime.today().date()
     nomoz = ChangeDistrictTimeSchedule.objects.select_related('district').filter(
-        district=masjid.district, date__date__lte=today).order_by('-date').last()
+        district=masjid.district, date__date__lte=today).order_by('-date').first()
     takbir = TakbirVaqtlari.objects.filter(district=masjid.district, date__lte=today).order_by('-date')
     user = User.objects.get(user_id=user_id)
     is_subscribed = Subscription.objects.filter(masjid=masjid, user=user).exists()
@@ -142,11 +142,11 @@ def masjid_info(request, masjid_pk, user_id):
 
     takbir_data = {}
     if takbir:
-        takbir_data["bomdod"] = takbir.last().bomdod
-        takbir_data["peshin"] = takbir.last().peshin
-        takbir_data["asr"] = takbir.last().asr
-        takbir_data["shom"] = takbir.last().shom
-        takbir_data["hufton"] = takbir.last().hufton
+        takbir_data["bomdod"] = takbir.first().bomdod
+        takbir_data["peshin"] = takbir.first().peshin
+        takbir_data["asr"] = takbir.first().asr
+        takbir_data["shom"] = takbir.first().shom
+        takbir_data["hufton"] = takbir.first().hufton
     data = {
         "pk": masjid.pk,
         "name_uz": masjid.name_uz,

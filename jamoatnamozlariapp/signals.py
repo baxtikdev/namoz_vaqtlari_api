@@ -17,7 +17,7 @@ def takbirVaqtlariSave(sender, instance, created, **kwargs):
         unique_user_lang_list = list(subscriptions)
         for subscription in unique_user_lang_list:
             azon = ChangeDistrictTimeSchedule.objects.select_related('district').filter(
-                district=takbir.district, date__date__lte=today).order_by('-date').last()
+                district=takbir.district, date__date__lte=today).order_by('-date').first()
             if subscription[1] == 'uz':
                 sana = "Sana"
                 tak = 'Takbir'
