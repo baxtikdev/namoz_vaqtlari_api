@@ -541,7 +541,7 @@ class ChangeDistrictTimeSchedule(models.Model):
     )
 
     def __str__(self):
-        return f"{self.district.name_uz}({self.date}) - {self.bomdod} | {self.peshin} | {self.asr} | {self.shom} | {self.hufton}"
+        return f"{self.district.name_uz}({self.date.date()}) - {self.bomdod} | {self.peshin} | {self.asr} | {self.shom} | {self.hufton}"
 
     class Meta:
         verbose_name = "Tuman(Shahar) vaqtlarini oʻzgartirish jadvali"
