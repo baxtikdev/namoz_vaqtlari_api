@@ -12,11 +12,9 @@ def takbirVaqtlariSave(sender, instance, created, **kwargs):
     today = datetime.today().date()
     if instance.date == today:
         takbir = TakbirVaqtlari.objects.select_related('district', 'district__region').filter(id=instance.id).first()
-        # subscriptions = Subscription.objects.select_related('user', 'masjid').filter(
-        #     masjid__district=takbir.district).distinct()
-        unique_user_lang_combinations = Subscription.objects.select_related('user').values_list('user__user_id',
-                                                                                                'user__lang').distinct()
-        unique_user_lang_list = list(unique_user_lang_combinations)
+        subscriptions = Subscription.objects.select_related('user').values_list('user__user_id',
+                                                                                'user__lang').distinct()
+        unique_user_lang_list = list(subscriptions)
         for subscription in unique_user_lang_list:
             azon = ChangeDistrictTimeSchedule.objects.select_related('district').filter(
                 district=takbir.district, date__date__lte=today).order_by('-date').last()

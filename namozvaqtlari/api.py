@@ -166,6 +166,7 @@ def masjid_info(request, masjid_pk, user_id):
         },
         "photo": masjid.photo,
         "photo_file": masjid.photo_file.url if masjid.photo_file else "",
+        "date": nomoz.date if nomoz else "🕒",
         "bomdod": nomoz.bomdod if nomoz else "🕒",
         "peshin": nomoz.peshin if nomoz else "🕒",
         "asr": nomoz.asr if nomoz else "🕒",

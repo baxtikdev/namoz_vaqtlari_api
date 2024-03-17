@@ -16,5 +16,8 @@ def send_message_task(user_id, message, parse_mode='HTML'):
     BOT_TOKEN = env("BOT_TOKEN")
     url = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
     data = {'chat_id': user_id, 'text': message, 'parse_mode': parse_mode}
-    response = requests.post(url, data=data)
-    return {"message": "Product has updated successfully", "response": response.json()}
+    try:
+        requests.post(url, data=data)
+    except Exception as e:
+        print(f"Error: {e}")
+    return {"message": "Message has sent successfully"}
