@@ -31,7 +31,7 @@ def daily_send_message_task():
     url = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
     today = datetime.today().date()
     takbir = TakbirVaqtlari.objects.select_related('district', 'district__region').\
-        filter(date=today).order_by('-date').first()
+        filter(date__lte=today).order_by('-date').first()
     if takbir:
         subscriptions = Subscription.objects.select_related('user').values_list('user__user_id',
                                                                                 'user__lang').distinct()
