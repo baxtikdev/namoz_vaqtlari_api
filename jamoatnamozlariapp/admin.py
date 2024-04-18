@@ -14,7 +14,7 @@ from .models import (
     ChangeDistrictTimeSchedule,
     ChangeRegionTimeSchedule,
     ChangeMasjidTimeSchedule,
-    TakbirVaqtlari
+    TakbirVaqtlari, CustomMessage
 )
 
 admin.site.unregister(Group)
@@ -200,6 +200,10 @@ class AdminModelAdmin(admin.ModelAdmin):
     list_display = ["full_name", "user_id"]
 
 
+class CustomMessageAdmin(admin.ModelAdmin):
+    search_fields = ["message_uz", "message_cyrl"]
+
+
 class UserAdmin(admin.ModelAdmin):
     list_display = [
         "full_name",
@@ -335,6 +339,7 @@ class RegionJadvallarAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(CustomMessage, CustomMessageAdmin)
 admin.site.register(Region, RegionAdmin)
 # admin.site.register(Admin, AdminModelAdmin)
 admin.site.register(District, DistrictAdmin)

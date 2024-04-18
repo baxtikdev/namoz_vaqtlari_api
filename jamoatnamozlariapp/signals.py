@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from jamoatnamozlariapp.models import TakbirVaqtlari, Subscription, ChangeDistrictTimeSchedule
+from jamoatnamozlariapp.models import TakbirVaqtlari, Subscription, ChangeDistrictTimeSchedule, CustomMessage
 from jamoatnamozlariapp.tasks import send_message_task
 
 
@@ -43,3 +43,26 @@ def takbirVaqtlariSave(sender, instance, created, **kwargs):
                 text += f"<b>🕓 {tak}</b>: {takbir.bomdod} | {takbir.peshin} | {takbir.asr} | {takbir.shom} | {takbir.hufton}\n\n"
             send_message_task.apply_async(args=[subscription[0], text], queue='my_sequential_queue',
                                           time_limit=14400)
+
+
+@receiver(post_save, sender=CustomMessage)
+def custom_send_message(sender, instance, created, **kwargs):
+    if created:
+        subscriptions = Subscription.objects.select_related('user', 'masjid', 'masjid__district')
+        if instance.region:
+            subscriptions = subscriptions.filter(masjid__district__region=instance.region)
+        if instance.district:
+            subscriptions = subscriptions.filter(masjid__district=instance.district)
+        if instance.masjid:
+            subscriptions = subscriptions.filter(masjid=instance.masjid)
+        if subscriptions:
+            subscriptions = subscriptions.values_list('user__user_id', 'user__lang').distinct()
+            unique_user_lang_list = list(subscriptions)
+            for subscription in unique_user_lang_list:
+                if subscription[1] == 'uz':
+                    message = instance.message_uz
+                else:
+                    message = instance.message_cyrl
+                send_message_task.apply_async(args=[subscription[0], message],
+                                              queue='my_sequential_queue',
+                                              time_limit=14400)

@@ -1012,3 +1012,22 @@ class TumanTimesChange(models.Model):
     class Meta:
         verbose_name = "Tuman (shahar) vaqtlarini oʻzgartirish"
         verbose_name_plural = "Tuman (shahar) vaqtlarini oʻzgartirish"
+
+
+class CustomMessage(models.Model):
+    message_uz = models.TextField(verbose_name="Lotin", help_text="Lotincha xabar")
+    message_cyrl = models.TextField(verbose_name="Kirill", help_text="Kirillcha xabar")
+    region = models.ForeignKey(Region, related_name='regionCustomMessage', on_delete=models.CASCADE, null=True,
+                               blank=True)
+    district = models.ForeignKey(District, related_name='districtCustomMessage', on_delete=models.CASCADE, null=True,
+                                 blank=True)
+    masjid = models.ForeignKey(Masjid, related_name='masjidCustomMessage', on_delete=models.CASCADE, null=True,
+                               blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.message_uz[:10] + '...'
+
+    class Meta:
+        verbose_name = "Xabar"
+        verbose_name_plural = "Xabarlar"

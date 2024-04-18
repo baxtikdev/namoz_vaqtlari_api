@@ -11,7 +11,7 @@ from jamoatnamozlariapp.models import (
     Region,
     Subscription,
     TakbirVaqtlari,
-    ChangeDistrictTimeSchedule
+    ChangeDistrictTimeSchedule, ChangeJamoatVaqtlari
 )
 from ninja import NinjaAPI, Schema
 from ninja.pagination import PageNumberPagination, paginate
@@ -309,18 +309,26 @@ def user_subscriptions(request, user_id):
 
 @api.get("/bugungi-namoz-vaqti", response=NamozVaqtiSchema)
 def bugungi_namoz_vaqti(request, mintaqa, milodiy_oy, milodiy_kun):
-    return NamozVaqti.objects.get(
+    # currint_time = datetime.datetime.now()
+    # mintaqa = Mintaqa.objects.get(id=mintaqa)
+    # t = ChangeDistrictTimeSchedule.objects.filter(
+    #     district__region_id=mintaqa,
+    #     date=currint_time.date()
+    # )
+    # print(t)
+    return NamozVaqti.objects.filter(
         mintaqa__mintaqa_id=mintaqa,
         milodiy_oy=milodiy_oy,
         milodiy_kun=milodiy_kun,
-    )
+    ).first()
 
 
 @api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema])
 @paginate(PageNumberPagination, page_size=5)
 def namoz_vaqtlari(request, mintaqa, oy):
+    print(mintaqa, oy)
     return NamozVaqti.objects.filter(
-        mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa), milodiy_oy=oy
+        mintaqa__mintaqa_id=mintaqa, milodiy_oy=oy
     )
 
 
