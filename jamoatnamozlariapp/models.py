@@ -247,8 +247,7 @@ class Masjid(models.Model):
         null=True,
         blank=True,
     )
-    location = models.CharField(
-        max_length=255,
+    location = models.CharField(max_length=300,
         verbose_name="Manzil",
         help_text="Masjid manzili",
         null=True,
@@ -348,78 +347,78 @@ class Masjid(models.Model):
             "district_position": district_position,
             "region_position": region_position,
         }
-
-    def save(
-            self,
-            force_insert: bool = ...,
-            force_update: bool = ...,
-            using: str | None = ...,
-            update_fields: Iterable[str] | None = ...,
-            is_global_change=False,
-    ) -> None:
-        if self.name_ru == None:
-            self.name_ru = self.name_uz
-        if self.name_cyrl == None:
-            obj = UzTransliterator.UzTransliterator()
-            self.name_cyrl = obj.transliterate(self.name_uz, from_="lat", to="cyr")
-
-        if self.photo_file:
-            if not self.photo:
-                self.photo = get_photo_id(self.photo_file.file)
-            else:
-                old = Masjid.objects.get(pk=self.pk)
-                if self.photo_file != old.photo_file:
-                    self.photo = get_photo_id(self.photo_file.file)
-
-        types = [
-            self.bomdod_type,
-            self.peshin_type,
-            self.asr_type,
-            self.shom_type,
-            self.hufton_type,
-        ]
-        jamoat_times = [
-            self.bomdod_jamoat,
-            self.peshin_jamoat,
-            self.asr_jamoat,
-            self.shom_jamoat,
-            self.hufton_jamoat,
-        ]
-        for i in range(len(types)):
-            if types[i] == "dynamic":
-                if jamoat_times[i].isdigit():
-                    pass
-                else:
-                    jamoat_times[i] = "0"
-            elif types[i] == "static":
-                pass
-
-        if self.pk and not is_global_change:
-            logging.warning(f"there was masjid so this is update")
-            old = Masjid.objects.get(pk=self.pk)
-            is_times_changed = False
-            if self.bomdod != old.bomdod:
-                is_times_changed = True
-            if self.peshin != old.peshin:
-                is_times_changed = True
-            if self.asr != old.asr:
-                is_times_changed = True
-            if self.shom != old.shom:
-                is_times_changed = True
-            if self.hufton != old.hufton:
-                is_times_changed = True
-            if is_times_changed:
-                self.last_update = timezone.now()
-                subscriptions = self.subscription_set.all()
-                super().save()
-                send_new_masjid_times([old, self], subscriptions)
-        else:
-            pass
-            self.last_update = timezone.now()
-            super().save()
-            logging.warning(f"there was no masjid so this is create")
-
-        return
+    #
+    # def save(
+    #         self,
+    #         force_insert: bool = ...,
+    #         force_update: bool = ...,
+    #         using: str | None = ...,
+    #         update_fields: Iterable[str] | None = ...,
+    #         is_global_change=False,
+    # ) -> None:
+    #     if self.name_ru == None:
+    #         self.name_ru = self.name_uz
+    #     if self.name_cyrl == None:
+    #         obj = UzTransliterator.UzTransliterator()
+    #         self.name_cyrl = obj.transliterate(self.name_uz, from_="lat", to="cyr")
+    #
+    #     if self.photo_file:
+    #         if not self.photo:
+    #             self.photo = get_photo_id(self.photo_file.file)
+    #         else:
+    #             old = Masjid.objects.get(pk=self.pk)
+    #             if self.photo_file != old.photo_file:
+    #                 self.photo = get_photo_id(self.photo_file.file)
+    #
+    #     types = [
+    #         self.bomdod_type,
+    #         self.peshin_type,
+    #         self.asr_type,
+    #         self.shom_type,
+    #         self.hufton_type,
+    #     ]
+    #     jamoat_times = [
+    #         self.bomdod_jamoat,
+    #         self.peshin_jamoat,
+    #         self.asr_jamoat,
+    #         self.shom_jamoat,
+    #         self.hufton_jamoat,
+    #     ]
+    #     for i in range(len(types)):
+    #         if types[i] == "dynamic":
+    #             if jamoat_times[i].isdigit():
+    #                 pass
+    #             else:
+    #                 jamoat_times[i] = "0"
+    #         elif types[i] == "static":
+    #             pass
+    #
+    #     if self.pk and not is_global_change:
+    #         logging.warning(f"there was masjid so this is update")
+    #         old = Masjid.objects.get(pk=self.pk)
+    #         is_times_changed = False
+    #         if self.bomdod != old.bomdod:
+    #             is_times_changed = True
+    #         if self.peshin != old.peshin:
+    #             is_times_changed = True
+    #         if self.asr != old.asr:
+    #             is_times_changed = True
+    #         if self.shom != old.shom:
+    #             is_times_changed = True
+    #         if self.hufton != old.hufton:
+    #             is_times_changed = True
+    #         if is_times_changed:
+    #             self.last_update = timezone.now()
+    #             subscriptions = self.subscription_set.all()
+    #             super().save()
+    #             send_new_masjid_times([old, self], subscriptions)
+    #     else:
+    #         pass
+    #         self.last_update = timezone.now()
+    #         super().save()
+    #         logging.warning(f"there was no masjid so this is create")
+    #
+    #     return
 
     def __str__(self):
         return self.name_uz

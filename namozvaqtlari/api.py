@@ -2,19 +2,25 @@ import datetime
 from typing import List
 
 from django.db.models import Count
+from ninja import NinjaAPI, Schema
+from ninja.pagination import PageNumberPagination, paginate
+from rest_framework.pagination import PageNumberPagination as PNPagination
+from rest_framework import status
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from jamoatnamozlariapp.models import (
     District,
     Masjid,
     Mintaqa,
-    NamozVaqti,
     User,
     Region,
     Subscription,
     TakbirVaqtlari,
-    ChangeDistrictTimeSchedule, ChangeJamoatVaqtlari
+    ChangeDistrictTimeSchedule
 )
-from ninja import NinjaAPI, Schema
-from ninja.pagination import PageNumberPagination, paginate
+from jamoatnamozlariapp.serializer import NamozVaqtiSerializer
 
 api = NinjaAPI()
 
@@ -102,6 +108,17 @@ class NamozVaqtiSchema(Schema):
     vaqtlari: str
 
 
+class NamozVaqtiSchema2(Schema):
+    pk: int
+    district: DistrictSchema
+    date: str
+    bomdod: str
+    peshin: str
+    asr: str
+    shom: str
+    hufton: str
+
+
 @api.post("/create-new-user")
 def hello(request, name: str, chat_id, lang: str):
     try:
@@ -120,7 +137,7 @@ def get_regions(request):
 
 @api.get("/get-districts", response=List[DistrictSchema])
 def get_districts(request, pk):
-    return District.objects.filter(region=Region.objects.get(pk=pk), is_active=True)
+    return District.objects.filter(region_id=pk, is_active=True)
 
 
 @api.get("/get-masjidlar", response=List[MasjidlarListSchema])
@@ -307,29 +324,62 @@ def user_subscriptions(request, user_id):
     return results
 
 
-@api.get("/bugungi-namoz-vaqti", response=NamozVaqtiSchema)
-def bugungi_namoz_vaqti(request, mintaqa, milodiy_oy, milodiy_kun):
-    # currint_time = datetime.datetime.now()
-    # mintaqa = Mintaqa.objects.get(id=mintaqa)
-    # t = ChangeDistrictTimeSchedule.objects.filter(
-    #     district__region_id=mintaqa,
-    #     date=currint_time.date()
-    # )
-    # print(t)
-    return NamozVaqti.objects.filter(
-        mintaqa__mintaqa_id=mintaqa,
-        milodiy_oy=milodiy_oy,
-        milodiy_kun=milodiy_kun,
-    ).first()
+# @api.get("/bugungi-namoz-vaqti", response=NamozVaqtiSchema2)
+# def bugungi_namoz_vaqti(request, mintaqa, milodiy_oy, milodiy_kun):
+#     currint_time = datetime.datetime.now()
+#     t = ChangeDistrictTimeSchedule.objects.filter(
+#         district_id=mintaqa,
+#         date=currint_time.date()
+#     )
+#
+#     print(t)
+#     return t.last()
+# return NamozVaqti.objects.filter(
+#     mintaqa__mintaqa_id=mintaqa,
+#     milodiy_oy=milodiy_oy,
+#     milodiy_kun=milodiy_kun,
+# ).first()
 
 
-@api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema])
-@paginate(PageNumberPagination, page_size=5)
-def namoz_vaqtlari(request, mintaqa, oy):
-    print(mintaqa, oy)
-    return NamozVaqti.objects.filter(
-        mintaqa__mintaqa_id=mintaqa, milodiy_oy=oy
-    )
+class BugungiNamozVaqtiAPIView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        mintaqa = request.query_params.get("mintaqa")
+        currint_time = datetime.datetime.now()
+        t = ChangeDistrictTimeSchedule.objects.select_related('district').filter(
+            district_id=mintaqa,
+            date__date=currint_time.date()
+        ).order_by('-date').first()
+        if not t:
+            return Response({}, status=status.HTTP_200_OK)
+
+        data = NamozVaqtiSerializer(t).data
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class NamozVaqtiAPIView(ListAPIView):
+    queryset = ChangeDistrictTimeSchedule.objects.all().order_by('date')
+    serializer_class = NamozVaqtiSerializer
+    pagination_class = PNPagination
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        mintaqa = self.request.query_params.get("mintaqa")
+        currint_time = datetime.datetime.now()
+        queryset = queryset.select_related('district').filter(
+            district_id=mintaqa,
+            date__month=currint_time.date().month)
+        return queryset
+
+
+# @api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema2])
+# @paginate(PageNumberPagination, page_size=5)
+# def namoz_vaqtlari(request, mintaqa, oy):
+#     currint_time = datetime.datetime.now()
+#     return ChangeDistrictTimeSchedule.objects.select_related('district').filter(
+#         district_id=mintaqa,
+#         date__month=currint_time.date().month
+#     ).order_by('date')
 
 
 @api.get("/viloyat-mintaqalari", response=List[MintaqaSchema])

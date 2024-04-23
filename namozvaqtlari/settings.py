@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "rosetta",
 
     "django_celery_beat",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
@@ -147,6 +148,27 @@ STATICFILES_FINDERS = [
 ]
 # STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+
+    "DEFAULT_PERMISSION_CLASSES": (
+        # "rest_framework.permissions.BasePermission",
+        # "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+        "rest_framework.permissions.AllowAny",
+    ),
+    "DEFAULT_PARSER_CLASSES": [
+        "rest_framework.parsers.JSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+    ]
+}
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -214,15 +236,6 @@ CELERY_TASK_SEND_SENT_EVENT = True
 
 if DEBUG:
     CELERY_TASK_EAGER_PROPAGATES = True
-
-
-
-
-
-
-
-
-
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
