@@ -4,7 +4,7 @@ from typing import List
 from django.db.models import Count
 from ninja import NinjaAPI, Schema
 from ninja.pagination import PageNumberPagination, paginate
-from rest_framework.pagination import PageNumberPagination as PNPagination
+from rest_framework import pagination
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -345,6 +345,7 @@ class BugungiNamozVaqtiAPIView(APIView):
 
     def get(self, request, *args, **kwargs):
         mintaqa = request.query_params.get("mintaqa")
+        print(mintaqa)
         currint_time = datetime.datetime.now()
         t = ChangeDistrictTimeSchedule.objects.select_related('district').filter(
             district_id=mintaqa,
@@ -360,15 +361,24 @@ class BugungiNamozVaqtiAPIView(APIView):
 class NamozVaqtiAPIView(ListAPIView):
     queryset = ChangeDistrictTimeSchedule.objects.all().order_by('date')
     serializer_class = NamozVaqtiSerializer
-    pagination_class = PNPagination
+    pagination_class = pagination.PageNumberPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
         mintaqa = self.request.query_params.get("mintaqa")
         currint_time = datetime.datetime.now()
-        queryset = queryset.select_related('district').filter(
-            district_id=mintaqa,
-            date__month=currint_time.date().month)
+        queryset = queryset.select_related('district').filter(date__month=currint_time.date().month)
+        if mintaqa:
+            queryset = queryset.filter(district_id=mintaqa)
+        # for i in range(1, 31):
+        #     start = datetime.datetime(2024, 6, i, 12, 30, 0)
+        #     bomdod = '03:20'
+        #     peshin = '13:00'
+        #     asr = '17:10'
+        #     shom = '19:18'
+        #     hufton = '20:45'
+        #     ChangeDistrictTimeSchedule.objects.get_or_create(district_id=11, date=start, bomdod=bomdod, peshin=peshin,
+        #                                                      asr=asr, shom=shom, hufton=hufton)
         return queryset
 
 

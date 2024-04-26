@@ -25,8 +25,8 @@ urlpatterns = [
     re_path(r'^rosetta/', include('rosetta.urls')),
     path('admin/', include('jamoatnamozlariapp.urls')),
     path('admin/', admin.site.urls),
-    path('api/', api.urls),
     path('api/', include('jamoatnamozlariapp.urls2')),
+    path('api/', api.urls),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
