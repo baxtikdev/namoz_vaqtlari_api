@@ -2,6 +2,7 @@ import datetime
 from typing import List
 
 from django.db.models import Count
+from geopy.distance import geodesic
 from ninja import NinjaAPI, Schema
 from ninja.pagination import PageNumberPagination, paginate
 from rest_framework import pagination
@@ -20,7 +21,7 @@ from jamoatnamozlariapp.models import (
     TakbirVaqtlari,
     ChangeDistrictTimeSchedule
 )
-from jamoatnamozlariapp.serializer import NamozVaqtiSerializer
+from jamoatnamozlariapp.serializer import NamozVaqtiSerializer, MasjidShortListSerializer
 
 api = NinjaAPI()
 
@@ -143,7 +144,7 @@ def get_districts(request, pk):
 @api.get("/get-masjidlar", response=List[MasjidlarListSchema])
 @paginate(PageNumberPagination, page_size=5)
 def get_masjidlar(request, district_id):
-    return Masjid.objects.filter(district=District.objects.get(pk=district_id), is_active=True)
+    return Masjid.objects.filter(district_id=district_id, is_active=True).order_by('id')
 
 
 @api.get("/masjid-info")
@@ -380,6 +381,27 @@ class NamozVaqtiAPIView(ListAPIView):
         #     ChangeDistrictTimeSchedule.objects.get_or_create(district_id=11, date=start, bomdod=bomdod, peshin=peshin,
         #                                                      asr=asr, shom=shom, hufton=hufton)
         return queryset
+
+
+class ClosestMasjidAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        masjids = Masjid.objects.filter(is_active=True, location__isnull=False).order_by('id')
+        masjid_distances = []
+        for masjid in masjids:
+            try:
+                masjid_latitude = masjid.location.split('@')[1].split(',')[0]
+                masjid_longitude = masjid.location.split('@')[1].split(',')[1]
+            except:
+                # print("ERROR", masjid.name_uz)
+                continue
+            masjid_coordinates = (masjid_latitude, masjid_longitude)
+            distance = geodesic((latitude, longitude), masjid_coordinates).kilometers
+            masjid_distances.append((masjid, distance))
+        closest_masjids = sorted(masjid_distances, key=lambda x: x[1])
+        closest_masjids = list(map(lambda x: x[0], closest_masjids))[:5]
+        return Response(MasjidShortListSerializer(closest_masjids, many=True).data)
 
 
 # @api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema2])

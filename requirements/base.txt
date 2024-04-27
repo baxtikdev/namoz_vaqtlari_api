@@ -34,3 +34,4 @@ django-kronos
 beautifulsoup4
 UzTransliterator
 django-rosetta
+geopy==2.4.1

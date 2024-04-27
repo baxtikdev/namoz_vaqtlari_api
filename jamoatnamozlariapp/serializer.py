@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from jamoatnamozlariapp.models import ChangeDistrictTimeSchedule, District, Region
+from jamoatnamozlariapp.models import ChangeDistrictTimeSchedule, District, Region, Masjid
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -21,3 +21,11 @@ class NamozVaqtiSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChangeDistrictTimeSchedule
         fields = ['pk', 'district', 'date', 'bomdod', 'peshin', 'asr', 'shom', 'hufton']
+
+
+class MasjidShortListSerializer(serializers.ModelSerializer):
+    district = DistrictSerializer()
+
+    class Meta:
+        model = Masjid
+        fields = ['pk', 'name_uz', 'name_cyrl', 'name_ru', 'district']
