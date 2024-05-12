@@ -3,18 +3,13 @@ from django.contrib.auth.admin import UserAdmin as usrmadmin
 from django.contrib.auth.models import Group
 
 from .models import (
-    Mintaqa,
-    NamozVaqti,
     User,
     Region,
     District,
     Masjid,
     Subscription,
     CustomUser,
-    ChangeDistrictTimeSchedule,
-    ChangeRegionTimeSchedule,
-    ChangeMasjidTimeSchedule,
-    TakbirVaqtlari, CustomMessage
+    CustomMessage
 )
 
 admin.site.unregister(Group)
@@ -30,14 +25,14 @@ def make_unpublished(modeladmin, request, queryset):
     queryset.update(is_active=False)
 
 
-class ChangeMasjidTimeAdminInline(admin.TabularInline):
-    model = ChangeMasjidTimeSchedule
-    extra = 2
+# class ChangeMasjidTimeAdminInline(admin.TabularInline):
+#     model = ChangeMasjidTimeSchedule
+#     extra = 2
 
 
-class ChangeRegionTimeAdminInline(admin.TabularInline):
-    model = ChangeRegionTimeSchedule
-    extra = 2
+# class ChangeRegionTimeAdminInline(admin.TabularInline):
+#     model = ChangeRegionTimeSchedule
+#     extra = 2
 
 
 class MasjidInline(admin.StackedInline):
@@ -113,42 +108,11 @@ class MasjidAdmin(admin.ModelAdmin):
         "name_uz",
         "name_cyrl",
         "name_ru",
-        "photo_file",
         "district",
         "is_active",
     ]
-    readonly_fields = [
-        "last_update",
-    ]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["district__region", "district"]
-    # form = MasjidForm
-    # inlines = [SubscriptionInline, ChangeMasjidTimeAdminInline]
-    actions = [make_published, make_unpublished]
-    exclude = ['bomdod', 'peshin', 'asr', 'shom', 'hufton', 'bomdod_type', 'bomdod_jamoat', 'peshin_type',
-               'peshin_jamoat', 'asr_type', 'asr_jamoat', 'shom_type', 'shom_jamoat', 'hufton_type', 'hufton_jamoat']
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "district":
-            # Filter choices based on the assigned region for custom admins
-            if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = District.objects.filter(region=request.user.region)
-            elif not request.user.is_superuser and request.user.admin_type == "district":
-                kwargs["queryset"] = District.objects.filter(pk=request.user.district.pk)
-            elif not request.user.is_superuser and request.user.admin_type == "masjid":
-                kwargs["queryset"] = District.objects.filter(masjid=request.user.masjid)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        elif request.user.admin_type == "region":
-            return qs.filter(district__region__pk=request.user.region.pk)
-        elif request.user.admin_type == "district":
-            return qs.filter(district__pk=request.user.district.pk)
-        elif request.user.admin_type == "masjid":
-            return qs.filter(pk=request.user.masjid.pk)
 
 
 class DistrictAdmin(admin.ModelAdmin):
@@ -180,10 +144,6 @@ class DistrictAdmin(admin.ModelAdmin):
 class RegionAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "is_active"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
-    search_fields = ["name_uz", "name_cyrl", "name_ru"]
-
-    actions = [make_published, make_unpublished]
-    inlines = [DistrictInline, ChangeRegionTimeAdminInline]
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
@@ -239,23 +199,6 @@ class NamozVaqtiAdmin(admin.ModelAdmin):
     autocomplete_fields = ["mintaqa"]
     search_fields = ["mintaqa__name_uz", "mintaqa__name_cyrl", "mintaqa__name_ru"]
     list_filter = ["mintaqa__viloyat"]
-
-
-class TimeChangeAdmin(admin.ModelAdmin):
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "region":
-            # Filter choices based on the assigned region for custom admins
-            if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = Region.objects.filter(pk=request.user.region.pk)
-        elif db_field.name == "district":
-            # Filter choices based on the assigned region for custom admins
-            if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = District.objects.filter(
-                    region=request.user.region
-                )
-            if not request.user.is_superuser and request.user.admin_type == "district":
-                kwargs["queryset"] = District.objects.filter(pk=request.user.district.pk)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class MasjidJadvallarAdmin(admin.ModelAdmin):
@@ -341,17 +284,6 @@ class RegionJadvallarAdmin(admin.ModelAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(CustomMessage, CustomMessageAdmin)
 admin.site.register(Region, RegionAdmin)
-# admin.site.register(Admin, AdminModelAdmin)
 admin.site.register(District, DistrictAdmin)
 admin.site.register(Masjid, MasjidAdmin)
-admin.site.register(Subscription, SubscriptionAdmin)
-admin.site.register(Mintaqa, MintaqaAdmin)
-admin.site.register(NamozVaqti, NamozVaqtiAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
-# admin.site.register(TumanTimesChange, TimeChangeAdmin)
-# admin.site.register(ShaxarViloyatTimesChange, TimeChangeAdmin)
-# admin.site.register(ChangeMasjidTimeSchedule, MasjidJadvallarAdmin)
-# admin.site.register(ChangeRegionTimeSchedule, RegionJadvallarAdmin)
-admin.site.register(ChangeDistrictTimeSchedule, ChangeDistrictTimeScheduleAdmin)
-# admin.site.register(ChangeJamoatVaqtlari)
-admin.site.register(TakbirVaqtlari)

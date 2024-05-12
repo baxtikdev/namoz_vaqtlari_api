@@ -11,6 +11,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.serializers import MasjidListSerializer
 from jamoatnamozlariapp.models import (
     District,
     Masjid,
@@ -21,7 +22,7 @@ from jamoatnamozlariapp.models import (
     TakbirVaqtlari,
     ChangeDistrictTimeSchedule
 )
-from jamoatnamozlariapp.serializer import NamozVaqtiSerializer, MasjidShortListSerializer
+from jamoatnamozlariapp.serializer import NamozVaqtiSerializer
 
 api = NinjaAPI()
 
@@ -387,7 +388,10 @@ class ClosestMasjidAPIView(APIView):
     def get(self, request, *args, **kwargs):
         latitude = request.query_params.get('latitude')
         longitude = request.query_params.get('longitude')
-        masjids = Masjid.objects.filter(is_active=True, location__isnull=False).order_by('id')
+
+        masjids = Masjid.objects.select_related('district', 'district__region').filter(is_active=True,
+                                                                                       location__isnull=False).order_by(
+            'id')
         masjid_distances = []
         for masjid in masjids:
             try:
@@ -401,7 +405,7 @@ class ClosestMasjidAPIView(APIView):
             masjid_distances.append((masjid, distance))
         closest_masjids = sorted(masjid_distances, key=lambda x: x[1])
         closest_masjids = list(map(lambda x: x[0], closest_masjids))[:5]
-        return Response(MasjidShortListSerializer(closest_masjids, many=True).data)
+        return Response(MasjidListSerializer(closest_masjids, many=True).data)
 
 
 # @api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema2])
