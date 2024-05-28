@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from common.prayer.models import PrayerTime
+from common.prayer.models import PrayerTime, IntervalTime
 from jamoatnamozlariapp.models import Region, District, Masjid, User
 
 
@@ -63,7 +63,25 @@ class UserCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'full_name']
 
 
+class IntervalTimeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IntervalTime
+        fields = ['id', 'bomdod', 'quyosh', 'peshin', 'asr', 'shom', 'hufton', 'date']
+
+
 class PrayerTimeListSerializer(serializers.ModelSerializer):
+    interval = serializers.SerializerMethodField()
+
+    def get_interval(self, prayer_time):
+        if self.context.get('interval'):
+            interval = self.context.get('interval').filter(date=prayer_time.date).first()
+            if interval is None:
+                interval = self.context.get('interval').filter(date__lt=prayer_time.date).order_by('-date').first()
+                if interval is None:
+                    interval = self.context.get('interval').order_by('date').first()
+            return IntervalTimeSerializer(interval).data
+        return None
+
     class Meta:
         model = PrayerTime
-        fields = ['id', 'bomdod', 'quyosh', 'peshin', 'asr', 'shom', 'hufton', 'date']
+        fields = ['id', 'bomdod', 'quyosh', 'peshin', 'asr', 'shom', 'hufton', 'date', 'interval']
