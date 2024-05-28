@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta, time
 
 from django.db.models import Exists, OuterRef, Count
-from django.utils import timezone
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
 
 from api.paginator import CustomPagination
 from api.serializers import RegionListSerializer, DistrictListSerializer, MasjidListSerializer, MasjidDetailSerializer, \
-    UserCreateSerializer, PrayerTimeListSerializer, DistrictDetailSerializer, IntervalTimeSerializer
-from common.prayer.models import PrayerTime, IntervalTime
+    UserCreateSerializer, PrayerTimeListSerializer, DistrictDetailSerializer
+from common.prayer.models import PrayerTime
 from jamoatnamozlariapp.models import Region, District, Masjid, Subscription, User
 
 
@@ -87,18 +86,6 @@ class MasjidDetailAPIView(RetrieveAPIView):
                                                            filter(user=user, masjid_id=OuterRef('pk'))))
         return queryset
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        prayerTime = PrayerTime.objects.filter(date=timezone.now().date()).first()
-        interval = IntervalTime.objects.filter(district=instance.district)
-
-        serializer = self.get_serializer(instance)
-        return Response(data={
-            **serializer.data,
-            'prayerTime': PrayerTimeListSerializer(prayerTime, context={'interval': interval}).data,
-        })
-
 
 class UserAPIView(CreateAPIView):
     queryset = User.objects.all()
@@ -107,8 +94,7 @@ class UserAPIView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         user = User.objects.filter(user_id=request.data.get('user_id')).first()
         if user is None:
-            User.objects.create(user_id=request.data.get('user_id'), full_name=request.data.get('full_name'))
-            return Response(status=200)
+            User.objects.create(user_id=request.data.get('user_id'), full_name=request.data.get('full_name')).first()
         if user.full_name != request.data.get('full_name'):
             user.full_name = request.data.get('full_name')
             user.save()
@@ -120,14 +106,6 @@ class PrayerTimeListAPIView(ListAPIView):
     serializer_class = PrayerTimeListSerializer
 
     # pagination_class = PageNumberPagination
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        district = self.request.query_params.get('district')
-        if district:
-            interval = IntervalTime.objects.filter(district_id=district)
-            context['interval'] = interval
-        return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
