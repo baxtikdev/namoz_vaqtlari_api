@@ -5,14 +5,14 @@ from common.prayer.models import PrayerTime, TakbirTime, IntervalTime
 
 @admin.register(PrayerTime)
 class PrayerTimeAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['created_at', 'updated_at']
 
 
 @admin.register(TakbirTime)
 class TakbirTimeAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['created_at', 'updated_at']
 
 
 @admin.register(IntervalTime)
 class IntervalTimeAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['created_at', 'updated_at']

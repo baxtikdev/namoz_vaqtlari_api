@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta, time
 
 from django.db.models import Exists, OuterRef, Count
-from django.utils import timezone
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
 from rest_framework.response import Response
 
 from api.paginator import CustomPagination
 from api.serializers import RegionListSerializer, DistrictListSerializer, MasjidListSerializer, MasjidDetailSerializer, \
-    UserCreateSerializer, PrayerTimeListSerializer, DistrictDetailSerializer
-from common.prayer.models import PrayerTime, IntervalTime
+    UserCreateSerializer, PrayerTimeListSerializer, DistrictDetailSerializer, IntervalTimeSerializer
+from common.prayer.models import PrayerTime, IntervalTime, TakbirTime
 from jamoatnamozlariapp.models import Region, District, Masjid, Subscription, User
 
 
@@ -87,16 +86,64 @@ class MasjidDetailAPIView(RetrieveAPIView):
                                                            filter(user=user, masjid_id=OuterRef('pk'))))
         return queryset
 
+    def get_thursdays_between(self):
+        today_date = datetime.now().date()
+        days_since_thursday = (today_date.weekday() - 3) % 7
+        previous_thursday = today_date - timedelta(days=days_since_thursday)
+
+        days_until_thursday = (3 - today_date.weekday() + 7) % 7
+        if days_until_thursday == 0:
+            days_until_thursday = 7
+        next_thursday = today_date + timedelta(days=days_until_thursday)
+
+        return previous_thursday, next_thursday
+
+    def get_interval(self, interval):
+        date = datetime.now().date()
+        inter = interval.filter(date=date).first()
+        if inter is None:
+            inter = interval.filter(date__lt=date).order_by('-date').first()
+            if inter is None:
+                inter = interval.order_by('date').first()
+            return IntervalTimeSerializer(inter).data
+        return None
+
+    def get_prayer_time(self, prev_time, next_time):
+        if prev_time > next_time:
+            return prev_time
+        return next_time
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-
-        prayerTime = PrayerTime.objects.filter(date=timezone.now().date()).first()
+        previous_thursday, next_thursday = self.get_thursdays_between()
+        prevPrayerTime = PrayerTime.objects.filter(date=previous_thursday).first()
+        nextPrayerTime = PrayerTime.objects.filter(date=next_thursday).first()
         interval = IntervalTime.objects.filter(district=instance.district)
 
         serializer = self.get_serializer(instance)
+        takbir = TakbirTime.objects.all().order_by('-id').last()
+        takbir_data = {}
+        if takbir:
+            takbir_data = {
+                'bomdod': takbir.bomdod,
+                'peshin': takbir.peshin,
+                'asr': takbir.asr,
+                'shom': takbir.shom,
+                'hufton': takbir.hufton
+            }
         return Response(data={
             **serializer.data,
-            'prayerTime': PrayerTimeListSerializer(prayerTime, context={'interval': interval}).data,
+            'prayerTime': {
+                'bomdod': self.get_prayer_time(prevPrayerTime.bomdod, nextPrayerTime.bomdod),
+                # 'quyosh': self.get_prayer_time(prevPrayerTime.quyosh, nextPrayerTime.quyosh),
+                'peshin': self.get_prayer_time(prevPrayerTime.peshin, nextPrayerTime.peshin),
+                'asr': self.get_prayer_time(prevPrayerTime.asr, nextPrayerTime.asr),
+                'shom': self.get_prayer_time(prevPrayerTime.shom, nextPrayerTime.shom),
+                'hufton': self.get_prayer_time(prevPrayerTime.hufton, nextPrayerTime.hufton),
+                'date': datetime.now().date(),
+                'interval': self.get_interval(interval)
+            },
+            'takbir': takbir_data
         })
 
 
@@ -119,6 +166,7 @@ class PrayerTimeListAPIView(ListAPIView):
     serializer_class = PrayerTimeListSerializer
 
     # pagination_class = PageNumberPagination
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         district = self.request.query_params.get('district')

@@ -26,7 +26,6 @@ class PrayerTime(BaseModel):
 
 class TakbirTime(BaseModel):
     bomdod = models.TimeField(verbose_name="Bomdod", default=time(hour=0, minute=0))
-    quyosh = models.TimeField(verbose_name="Quyosh", default=time(hour=0, minute=0))
     peshin = models.TimeField(verbose_name="Peshin", default=time(hour=0, minute=0))
     asr = models.TimeField(verbose_name="Asr", default=time(hour=0, minute=0))
     shom = models.TimeField(verbose_name="Shom", default=time(hour=0, minute=0))
