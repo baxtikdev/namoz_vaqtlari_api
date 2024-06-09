@@ -103,10 +103,8 @@ class MasjidDetailAPIView(RetrieveAPIView):
         inter = interval.filter(date=date).first()
         if inter is None:
             inter = interval.filter(date__lt=date).order_by('-date').first()
-            if inter is None:
-                inter = interval.order_by('date').first()
             return IntervalTimeSerializer(inter).data
-        return None
+        return IntervalTimeSerializer(inter).data
 
     def get_prayer_time(self, prev_time, next_time):
         if prev_time > next_time:
@@ -121,7 +119,7 @@ class MasjidDetailAPIView(RetrieveAPIView):
         interval = IntervalTime.objects.filter(district=instance.district)
 
         serializer = self.get_serializer(instance)
-        takbir = TakbirTime.objects.all().order_by('-id').last()
+        takbir = TakbirTime.objects.all().order_by('-date').first()
         takbir_data = {}
         if takbir:
             takbir_data = {
