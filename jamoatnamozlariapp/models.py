@@ -1,13 +1,11 @@
-import logging
 from collections.abc import Iterable
 
 from UzTransliterator import UzTransliterator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import Count
 from django.utils import timezone
 
-from .tg_functions import get_photo_id, send_new_masjid_times, send_region_change_times
+from .tg_functions import send_region_change_times
 
 viloyatlar = [
     ("1", "Toshkent shahri"),
@@ -35,12 +33,8 @@ class User(models.Model):
         verbose_name="ID",
         help_text="Foydalanuvchining Telegramdagi ID'si",
     )
-    full_name = models.TextField(
-        null=True, blank=True, verbose_name="Ismi", help_text="Foydalanuvchi ismi"
-    )
-    lang = models.CharField(
-        max_length=255, null=True, blank=True, verbose_name="Til", help_text="Til"
-    )
+    full_name = models.CharField(verbose_name="Ismi", help_text="Foydalanuvchi ismi", null=True, blank=True)
+    lang = models.CharField(max_length=255, null=True, blank=True, verbose_name="Til", help_text="Til")
 
     def __str__(self):
         return self.full_name

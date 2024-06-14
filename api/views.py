@@ -153,6 +153,8 @@ class UserAPIView(CreateAPIView):
         user = User.objects.filter(user_id=request.data.get('user_id')).first()
         if user is None:
             User.objects.create(user_id=request.data.get('user_id'), full_name=request.data.get('full_name'))
+            return Response(status=200)
+
         if user.full_name != request.data.get('full_name'):
             user.full_name = request.data.get('full_name')
             user.save()

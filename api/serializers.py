@@ -58,6 +58,8 @@ class MasjidDetailSerializer(serializers.ModelSerializer):
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    user_id = serializers.CharField(required=True, max_length=30)
+
     class Meta:
         model = User
         fields = ['id', 'user_id', 'full_name']
