@@ -395,8 +395,8 @@ class ClosestMasjidAPIView(APIView):
         masjid_distances = []
         for masjid in masjids:
             try:
-                masjid_latitude = masjid.location.split('@')[1].split(',')[0]
-                masjid_longitude = masjid.location.split('@')[1].split(',')[1]
+                masjid_latitude = masjid.latitude
+                masjid_longitude = masjid.longitude
             except:
                 # print("ERROR", masjid.name_uz)
                 continue
