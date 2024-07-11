@@ -108,7 +108,7 @@ class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "district", "longitude", "latitude", "is_active"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["district__region", "district"]
-    list_select_related = ['"district__region", "district"']
+    list_select_related = ["district__region", "district"]
 
 
 class DistrictAdmin(admin.ModelAdmin):
