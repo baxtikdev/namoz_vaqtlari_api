@@ -179,13 +179,19 @@ class Masjid(models.Model):
 
     @property
     def longitude(self):
-        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
-        return match.group(2) if match else None
+        try:
+            match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
+            return match.group(2) if match else None
+        except:
+            return None
 
     @property
     def latitude(self):
-        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
-        return match.group(1) if match else None
+        try:
+            match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
+            return match.group(1) if match else None
+        except:
+            return None
 
     def __str__(self):
         return self.name_uz
