@@ -178,14 +178,14 @@ class Masjid(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Faolmi?")
 
     @property
-    def latitude(self):
-        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
-        return match.group(1) if match else None
-
-    @property
     def longitude(self):
         match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
         return match.group(2) if match else None
+
+    @property
+    def latitude(self):
+        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', self.location)
+        return match.group(1) if match else None
 
     def __str__(self):
         return self.name_uz

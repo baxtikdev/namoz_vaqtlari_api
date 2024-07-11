@@ -103,12 +103,15 @@ class CustomUserAdmin(usrmadmin):
     )
 
 
+@admin.register(Masjid)
 class MasjidAdmin(admin.ModelAdmin):
     list_display = [
         "name_uz",
         "name_cyrl",
         "name_ru",
         "district",
+        "longitude",
+        "latitude",
         "is_active",
     ]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
@@ -285,5 +288,4 @@ admin.site.register(User, UserAdmin)
 admin.site.register(CustomMessage, CustomMessageAdmin)
 admin.site.register(Region, RegionAdmin)
 admin.site.register(District, DistrictAdmin)
-admin.site.register(Masjid, MasjidAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
