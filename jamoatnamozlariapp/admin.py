@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as usrmadmin
 from django.contrib.auth.models import Group
@@ -105,17 +107,18 @@ class CustomUserAdmin(usrmadmin):
 
 @admin.register(Masjid)
 class MasjidAdmin(admin.ModelAdmin):
-    list_display = [
-        "name_uz",
-        "name_cyrl",
-        "name_ru",
-        "district",
-        "longitude",
-        "latitude",
-        "is_active",
-    ]
+    list_display = ["name_uz", "name_cyrl", "name_ru", "district", "longitude", "latitude", "is_active"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["district__region", "district"]
+    list_select_related = ['"district__region", "district"']
+
+    def longitude(self, obj):
+        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', obj.location)
+        return match.group(2) if match else ''
+
+    def latitude(self, obj):
+        match = re.search(r'@(-?\d+\.\d+),(-?\d+\.\d+)', obj.location)
+        return match.group(1) if match else ''
 
 
 class DistrictAdmin(admin.ModelAdmin):
