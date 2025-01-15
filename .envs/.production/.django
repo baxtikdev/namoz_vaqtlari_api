@@ -39,3 +39,9 @@ REDIS_URL=redis://redis:6379/0
 CELERY_FLOWER_USER=debug
 CELERY_FLOWER_PASSWORD=debug
 
+#Bot
+BOT_TOKEN=7081280463:AAGKIF4ZaDlvxkd2cIxSleN8Ni7mCcYXDAc
+
+DATABASE_URL=postgresql://namozvaqtlari:123@postgres:5432/namozvaqtlari
+
+CELERY_BROKER_URL=redis://redis:6379
